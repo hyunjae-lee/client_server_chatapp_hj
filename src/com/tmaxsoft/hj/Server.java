@@ -1,7 +1,6 @@
 package com.tmaxsoft.hj;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -16,7 +15,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
 
-    public int portNumber = 5001;
+    private static final int portNumber = 5001;
 
     ExecutorService executorService;
     ServerSocketChannel serverSocketChannel;
@@ -45,38 +44,35 @@ public class Server {
 
         // connection accept 작업을 runnable 객체로 만들고
         // thread pool의 작업 thread로 실행시킨다.
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        // thread는 accpet()에서 client 연결 수락을 위해 blocking 된다.
-                        SocketChannel socketChannel = serverSocketChannel.accept();
+        Runnable runnable = () -> {
+            while(true) {
+                try {
+                    // thread는 accpet()에서 client 연결 수락을 위해 blocking 된다.
+                    SocketChannel socketChannel = serverSocketChannel.accept();
 
-                        String acceptMsg = "[ Accept: " + socketChannel.getRemoteAddress() + ": "
-                                + Thread.currentThread().getName() + "]";
+                    String acceptMsg = "[ Accept: " + socketChannel.getRemoteAddress() + ": "
+                            + Thread.currentThread().getName() + "]";
 
-                        System.out.println(acceptMsg);
+                    System.out.println(acceptMsg);
 
-                        Client client = new Client(socketChannel);
+                    Client client = new Client(socketChannel);
 
-                        connections.add(client);
+                    connections.add(client);
 
-                        // data 통신
-                        while(true){
-                            if(client.socketChannel.isOpen()){
-                                client.receive();
-                            }else{
-                                break;
-                            }
+                    // data 통신
+                    while(true){
+                        if(client.socketChannel.isOpen()){
+                            client.receive();
+                        }else{
+                            break;
                         }
-
-                    } catch (Exception e){
-                        if (serverSocketChannel.isOpen()){
-                            stopServer();
-                        }
-                        break;
                     }
+
+                } catch (Exception e){
+                    if (serverSocketChannel.isOpen()){
+                        stopServer();
+                    }
+                    break;
                 }
             }
         };

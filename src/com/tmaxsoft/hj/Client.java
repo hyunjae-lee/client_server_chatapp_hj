@@ -12,11 +12,11 @@ import java.nio.charset.StandardCharsets;
 
 public class Client {
 
-    public int portNumber = 5001;
-    private static BufferedReader input = null;
+    private static final int portNumber = 5001;
 
     SocketChannel socketChannel;
 
+    // Client 시작
     void startClient(){
         Thread thread = new Thread(){
             @Override
@@ -41,6 +41,7 @@ public class Client {
         thread.start();
     }
 
+    // Client 종료
     void stopClient(){
         try{
             if(socketChannel != null && socketChannel.isOpen()){
@@ -51,6 +52,7 @@ public class Client {
         }
     }
 
+    // Server로 부터 data 받음.
     boolean receive(){
         while(true){
             try{
@@ -82,6 +84,7 @@ public class Client {
         return false;
     }
 
+    // Server로 data 전송.
     void send(String data){
         Thread thread = new Thread(){
 
@@ -104,7 +107,7 @@ public class Client {
         Client client = new Client();
         client.startClient();
 
-        input = new BufferedReader(new
+        BufferedReader input = new BufferedReader(new
                 InputStreamReader(System.in));
 
         while(true){
